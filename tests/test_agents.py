@@ -3,7 +3,7 @@ from fastapi.testclient import TestClient
 from api.main import app
 from db.session import get_session
 from models.database import QueryRecord
-from tests.test_query import setup_db_and_graph, populated_db_and_graph
+
 
 client = TestClient(app)
 
