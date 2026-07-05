@@ -1,0 +1,25 @@
+# API Frame & Server
+fastapi
+uvicorn[standard]
+
+# Data Validation & Config
+pydantic>=2.0.0
+pydantic-settings
+
+# Database (SQLAlchemy)
+sqlalchemy
+
+# Postgres Client (needed for SQLAlchemy connecting to PostgreSQL)
+psycopg2-binary
+
+# Testing
+pytest
+httpx
+
+# Vector & Graph Databases
+pgvector
+neo4j
+
+# Embeddings (local, CPU, $0)
+sentence-transformers
+langgraph
