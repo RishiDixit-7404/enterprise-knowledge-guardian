@@ -11,7 +11,8 @@ def client():
 @pytest.fixture(scope="module")
 def setup_db_and_graph():
     """Initializes DB schemas for tests."""
-    from db.session import init_db
+    from db.session import init_db, engine, Base
+    Base.metadata.drop_all(bind=engine)
     init_db()
 
 @pytest.fixture(scope="module")

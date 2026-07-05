@@ -22,4 +22,11 @@ neo4j
 
 # Embeddings (local, CPU, $0)
 sentence-transformers
-langgraph
+langgraph==0.2.60
+langchain-community==0.2.17
+langchain-core>=0.2.0,<0.3
+
+# Evaluation (Phase 6)
+ragas==0.2.14
+deepeval
+
