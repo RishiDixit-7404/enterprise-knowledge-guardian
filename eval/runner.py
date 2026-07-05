@@ -174,14 +174,54 @@ def run_evaluation(
             logger.warning(f"DeepEval metric failed for {golden_id}: {e}")
             deepeval_halluc = None
 
+        # Phase 7: Extract latency and tokens from agent_trace
+        total_input_tokens = 0
+        total_output_tokens = 0
+        prompt_sources = []
+        agent_executions = []
+        for event in agent_trace:
+            agent_executions.append(event)
+            if "usage" in event:
+                u = event["usage"]
+                total_input_tokens += u.get("input_tokens", 0)
+                total_output_tokens += u.get("output_tokens", 0)
+                prompt_sources.append(u.get("prompt_source", "unknown"))
+                
+        # Calculate cost (null under mock)
+        from settings import settings
+        cost_estimate = None
+        if settings.LLM_MODEL != "fake":
+            cost_estimate = (total_input_tokens * 0.001 / 1000) + (total_output_tokens * 0.002 / 1000)
+            
+        from models.database import RunLog
+        run_log = RunLog(
+            run_id=query_record.id,
+            operation="eval",
+            prompt_version="v1",
+            prompt_source=",".join(set(prompt_sources)),
+            model_name=settings.LLM_MODEL,
+            embedding_model=settings.EMBEDDING_MODEL,
+            reranker_model=settings.RERANKER_MODEL,
+            input_tokens=total_input_tokens,
+            output_tokens=total_output_tokens,
+            latency_ms=latency_ms,
+            cost_estimate=cost_estimate,
+            retrieval_trace=retrieval_trace,
+            retrieved_chunk_ids=[c.get("chunk_id") for c in expanded_chunks],
+            agent_execution=agent_executions,
+            request_ids=None
+        )
+        db.add(run_log)
+        db.commit()
+
         # Build metrics dict
         metrics = {
             "context_recall": ctx_recall,
             "citation_correctness": cite_correctness,
             "hallucination_rate": halluc_rate,
             "latency_ms": latency_ms,
-            "tokens_used": None,  # Phase 7: RunLog instrumentation
-            "cost": None,  # Phase 7: RunLog instrumentation
+            "tokens_used": total_input_tokens + total_output_tokens,
+            "cost": cost_estimate,
         }
 
         # Add Ragas scores
