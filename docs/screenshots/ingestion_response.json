@@ -1,11 +1,16 @@
 {
   "success": true,
   "data": {
-    "job_id": "9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d",
+    "job_id": "f58f509d-fc68-45ad-bc97-f584eeb1d1df",
     "status": "Queued",
     "source": "edgar",
     "params": {
-      "tickers": ["MSFT"]
-    }
+      "tickers": [
+        "AAPL"
+      ]
+    },
+    "created_at": "2026-07-05T21:50:47.360155",
+    "completed_at": null,
+    "error_message": null
   }
 }
