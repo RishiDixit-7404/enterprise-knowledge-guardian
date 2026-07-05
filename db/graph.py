@@ -38,7 +38,7 @@ class Graph:
 
     def write_relationship(self, rel_id: uuid.UUID, rel_type: str, from_id: uuid.UUID, to_id: uuid.UUID, evidence_chunk_ids: List[uuid.UUID], confidence: float):
         """Creates or updates a Relationship edge in Neo4j between two Entities."""
-        # Enforce Rule 7: "Every edge must carry at least one evidence chunk — no unsupported edges."
+        # Enforce SPEC.md evidence-chunk requirement: "Every edge must carry at least one evidence chunk — no unsupported edges."
         if not evidence_chunk_ids:
             raise ValueError("Relationship must carry at least one evidence chunk ID")
 

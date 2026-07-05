@@ -5,8 +5,11 @@ from api.main import app
 @pytest.fixture(scope="module")
 def client():
     """Provides a TestClient for testing the FastAPI application endpoints."""
+    from api.main import verify_token
+    app.dependency_overrides[verify_token] = lambda: "test-token"
     with TestClient(app) as c:
         yield c
+    app.dependency_overrides.clear()
 
 @pytest.fixture(scope="module")
 def setup_db_and_graph():

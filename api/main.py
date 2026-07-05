@@ -1,5 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, Security
 from fastapi.responses import RedirectResponse
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel, Field
 from typing import Any, Optional, List
 import uuid
@@ -7,11 +8,22 @@ import datetime
 from sqlalchemy.orm import Session
 from db.session import get_session, init_db
 from models.database import IngestJob
+from settings import settings
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+def verify_token(credentials: HTTPAuthorizationCredentials = Security(bearer_scheme)):
+    if not settings.API_KEY:
+        raise HTTPException(status_code=401, detail="Unauthorized - API Key unconfigured")
+    if not credentials or credentials.credentials != settings.API_KEY:
+        raise HTTPException(status_code=401, detail="Invalid or missing authentication token")
+    return credentials
 
 app = FastAPI(
     title="Enterprise Knowledge Guardian (EKG) API",
     description="Compliance & risk intelligence platform over public company data.",
-    version="0.1.0"
+    version="0.1.0",
+    dependencies=[Depends(verify_token)]
 )
 
 # Initialize database schema on API startup
@@ -137,12 +149,41 @@ def get_graph():
     finally:
         graph.close()
 
+@app.get("/entities", response_model=ResponseEnvelope)
+def get_entities(name: Optional[str] = None, type: Optional[str] = None):
+    """Query nodes in the knowledge graph matching optional name and type filters."""
+    from db.graph import Graph
+    graph = Graph()
+    query = "MATCH (n)"
+    conditions = []
+    params = {}
+    if name:
+        conditions.append("n.name = $name")
+        params["name"] = name
+    if type:
+        conditions.append("n.type = $type")
+        params["type"] = type
+        
+    if conditions:
+        query += " WHERE " + " AND ".join(conditions)
+    query += " RETURN n LIMIT 100"
+    
+    with graph.driver.session() as session:
+        result = session.run(query, params)
+        nodes = [dict(record["n"]) for record in result]
+            
+    return ResponseEnvelope(
+        success=True,
+        data={"nodes": nodes}
+    )
+
 @app.post("/query", response_model=ResponseEnvelope)
-def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: Any = Depends(get_graph)):
-    """Executes the full Retrieval + LangGraph Verification + Response pipeline."""
-    from langchain_agents.flow import app as flow_app
+def execute_query(req: QueryRequest, db: Session = Depends(get_session)):
+    """Executes the Agentic RAG pipeline to answer a user question."""
+    from db.graph import Graph
     from models.database import QueryRecord
     
+    graph = Graph()
     # Prepare initial state for LangGraph
     initial_state = {
         "question": req.question,
@@ -164,6 +205,7 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
     
     start_time = time.time()
     # Execute the LangGraph workflow
+    from langchain_agents.flow import app as flow_app
     final_state = flow_app.invoke(initial_state)
     latency_ms = int((time.time() - start_time) * 1000)
     
@@ -200,15 +242,13 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
             total_output_tokens += u.get("output_tokens", 0)
             prompt_sources.append(u.get("prompt_source", "unknown"))
             
-    # Calculate cost (null under mock, fake calculation for real)
+    # Cost tracking requires provider-specific rate sheets. Null in mock mode.
     cost_estimate = None
-    if settings.LLM_MODEL != "fake":
-        cost_estimate = (total_input_tokens * 0.001 / 1000) + (total_output_tokens * 0.002 / 1000)
         
     from models.database import RunLog
     run_log = RunLog(
         run_id=query_record.id,
-        operation="pipeline",
+        operation="answer",
         prompt_version="v1",
         prompt_source=",".join(set(prompt_sources)),
         model_name=settings.LLM_MODEL,
@@ -226,8 +266,6 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
     db.add(run_log)
     db.commit()
     
-    # Optional MLflow tracking
-    print(f"DEBUG: settings.MLFLOW_ENABLED={settings.MLFLOW_ENABLED}")
     if settings.MLFLOW_ENABLED:
         from llmops.mlflow_logger import log_run
         log_run(run_log)

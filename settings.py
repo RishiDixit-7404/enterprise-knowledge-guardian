@@ -12,6 +12,7 @@ class Settings(BaseSettings):
     MLFLOW_ENABLED: bool = False
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+    API_KEY: str | None = None
 
     # Pydantic v2 configuration
     model_config = SettingsConfigDict(
