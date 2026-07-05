@@ -1,0 +1,36 @@
+{
+  "success": true,
+  "data": {
+    "query_record_id": "8665f903-8d26-4441-addd-43400a4066c0",
+    "answer": "Tim Cook is the CEO of Apple Inc.",
+    "citations": [
+      "21c5b8b6-a4c3-5cd2-82cb-2821262d043d"
+    ],
+    "retrieval_trace": {
+      "expanded_queries": [
+        "Who is the CEO of Apple Inc.?"
+      ],
+      "chunks_found": 2,
+      "final_chunks_used": 2
+    },
+    "agent_trace": [
+      {
+        "agent": "retrieval_agent",
+        "action": "search",
+        "result": "Found 2 chunks."
+      },
+      {
+        "agent": "verification_agent",
+        "action": "verify",
+        "result": "Answer is grounded and answers the question."
+      },
+      {
+        "agent": "response_agent",
+        "action": "generate_response",
+        "result": "Final answer generated."
+      }
+    ],
+    "retry_count": 0,
+    "metadata": {}
+  }
+}

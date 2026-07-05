@@ -1,0 +1,9 @@
+{
+  "success": true,
+  "data": {
+    "total_runs": 1,
+    "avg_latency_ms": 124.5,
+    "avg_tokens": 120.0,
+    "avg_cost": 0.0
+  }
+}

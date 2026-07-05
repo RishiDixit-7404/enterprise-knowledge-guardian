@@ -1,0 +1,13 @@
+{
+  "success": true,
+  "data": {
+    "entity_id": "Apple Inc.",
+    "nodes": [
+      {"id": "Apple Inc.", "label": "Company"},
+      {"id": "Tim Cook", "label": "Person"}
+    ],
+    "relationships": [
+      {"source": "Tim Cook", "target": "Apple Inc.", "type": "CEO_OF"}
+    ]
+  }
+}
