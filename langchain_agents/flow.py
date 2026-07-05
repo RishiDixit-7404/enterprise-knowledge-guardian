@@ -58,17 +58,18 @@ def retrieve_node(state: GraphState):
 
 def verify_node(state: GraphState):
     llm_client = FakeLLMClient()
-    verifier = VerificationAgent(llm_client)
+    verification_agent = VerificationAgent(llm_client)
     
-    claims = verifier.verify(state["question"], state["expanded_chunks"])
-    
-    unsupported_count = sum(1 for c in claims if not c.get("supported"))
+    claims, usage = verification_agent.verify(
+        question=state["question"],
+        expanded_chunks=state["expanded_chunks"]
+    )
     
     trace_event = {
         "node": "verify_node",
         "retry_count": state.get("retry_count", 0),
-        "claims_total": len(claims),
-        "claims_unsupported": unsupported_count
+        "claims_generated": len(claims),
+        "usage": usage
     }
     
     return {
@@ -80,11 +81,12 @@ def response_node(state: GraphState):
     llm_client = FakeLLMClient()
     responder = ResponseAgent(llm_client)
     
-    final_answer, citations = responder.generate(state["question"], state["claims"])
+    final_answer, citations, usage = responder.generate(state["question"], state["claims"])
     
     trace_event = {
         "node": "response_node",
-        "citations_count": len(citations)
+        "citations_count": len(citations),
+        "usage": usage
     }
     
     return {

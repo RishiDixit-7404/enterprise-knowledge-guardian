@@ -101,16 +101,22 @@ class RunLog(Base):
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     run_id = Column(UUID(as_uuid=True), nullable=False)
-    operation = Column(String, nullable=False) # entity_extraction|answer|verify|eval
+    operation = Column(String, nullable=False) # pipeline|eval
     prompt_version = Column(String, nullable=True)
+    prompt_source = Column(String, nullable=True)
     model_name = Column(String, nullable=True)
     embedding_model = Column(String, nullable=True)
+    reranker_model = Column(String, nullable=True)
+    request_ids = Column(JSONB, nullable=True)
     input_tokens = Column(Integer, default=0)
     output_tokens = Column(Integer, default=0)
     latency_ms = Column(Integer, default=0)
     cost_estimate = Column(Float, default=0.0)
+    retrieval_trace = Column(JSONB, nullable=True)
     retrieved_chunk_ids = Column(JSONB, nullable=True)
+    agent_execution = Column(JSONB, nullable=True)
     tool_calls = Column(JSONB, nullable=True)
+    evaluation_refs = Column(JSONB, nullable=True)
     eval_score = Column(Float, nullable=True)
     failure_reason = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
