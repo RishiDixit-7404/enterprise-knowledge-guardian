@@ -13,9 +13,9 @@
     ],
     "relationships": [
       {
-        "source": "Tim Cook",
-        "target": "Apple Inc.",
-        "type": "CEO_OF"
+        "source": "Apple Inc.",
+        "target": "Tim Cook",
+        "type": "HAS_CEO"
       }
     ]
   }
