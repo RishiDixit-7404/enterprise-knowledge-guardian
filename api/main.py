@@ -159,8 +159,13 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
         "agent_trace": []
     }
     
+    import time
+    from settings import settings
+    
+    start_time = time.time()
     # Execute the LangGraph workflow
     final_state = flow_app.invoke(initial_state)
+    latency_ms = int((time.time() - start_time) * 1000)
     
     # Construct verification results from the claims
     verification_results = [
@@ -181,6 +186,51 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
     db.add(query_record)
     db.commit()
     db.refresh(query_record)
+    
+    # Extract total usage from agent trace
+    total_input_tokens = 0
+    total_output_tokens = 0
+    prompt_sources = []
+    agent_executions = []
+    for event in final_state.get("agent_trace", []):
+        agent_executions.append(event)
+        if "usage" in event:
+            u = event["usage"]
+            total_input_tokens += u.get("input_tokens", 0)
+            total_output_tokens += u.get("output_tokens", 0)
+            prompt_sources.append(u.get("prompt_source", "unknown"))
+            
+    # Calculate cost (null under mock, fake calculation for real)
+    cost_estimate = None
+    if settings.LLM_MODEL != "fake":
+        cost_estimate = (total_input_tokens * 0.001 / 1000) + (total_output_tokens * 0.002 / 1000)
+        
+    from models.database import RunLog
+    run_log = RunLog(
+        run_id=query_record.id,
+        operation="pipeline",
+        prompt_version="v1",
+        prompt_source=",".join(set(prompt_sources)),
+        model_name=settings.LLM_MODEL,
+        embedding_model=settings.EMBEDDING_MODEL,
+        reranker_model=settings.RERANKER_MODEL,
+        input_tokens=total_input_tokens,
+        output_tokens=total_output_tokens,
+        latency_ms=latency_ms,
+        cost_estimate=cost_estimate,
+        retrieval_trace=final_state.get("retrieval_trace", {}),
+        retrieved_chunk_ids=[c.get("chunk_id") for c in final_state.get("expanded_chunks", [])],
+        agent_execution=agent_executions,
+        request_ids=None # Not populated for mock
+    )
+    db.add(run_log)
+    db.commit()
+    
+    # Optional MLflow tracking
+    print(f"DEBUG: settings.MLFLOW_ENABLED={settings.MLFLOW_ENABLED}")
+    if settings.MLFLOW_ENABLED:
+        from llmops.mlflow_logger import log_run
+        log_run(run_log)
     
     return ResponseEnvelope(data={
         "query_record_id": str(query_record.id),
@@ -208,16 +258,23 @@ def run_evaluation_endpoint(req: EvalRunRequest, db: Session = Depends(get_sessi
 
 
 @app.get("/metrics", response_model=ResponseEnvelope)
-def get_metrics(db: Session = Depends(get_session)):
-    """Aggregates recent EvalRecords and returns evaluation history."""
-    from db.repositories import EvalRecordRepository
-
+def get_metrics(dataset_version: Optional[str] = None, db: Session = Depends(get_session)):
+    """Returns evaluation metrics, recent runs, and operational RunLog statistics."""
+    from db.repositories import EvalRecordRepository, RunLogRepository
+    
     eval_repo = EvalRecordRepository(db)
-    aggregates = eval_repo.get_aggregated_metrics()
+    aggregated = eval_repo.get_aggregated_metrics(dataset_version=dataset_version)
     recent_runs = eval_repo.get_recent_eval_runs(limit=10)
-
-    return ResponseEnvelope(data={
-        "aggregates": aggregates,
-        "recent_runs": recent_runs,
-    })
-
+    
+    runlog_repo = RunLogRepository(db)
+    runlog_stats = runlog_repo.get_aggregated_stats()
+    
+    return ResponseEnvelope(
+        success=True,
+        status_code=200,
+        data={
+            "aggregated": aggregated,
+            "recent_runs": recent_runs,
+            "runlog_stats": runlog_stats
+        }
+    )

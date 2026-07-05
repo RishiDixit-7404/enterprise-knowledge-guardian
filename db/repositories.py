@@ -268,4 +268,45 @@ class EvalRecordRepository:
                 "dataset_version": run_row[2],
                 "metrics": metrics_dict,
             })
+            
         return result
+
+class RunLogRepository:
+    def __init__(self, session: Session):
+        self.session = session
+
+    def get_aggregated_stats(self) -> dict:
+        """Aggregates statistics from all RunLogs for the /metrics endpoint."""
+        from models.database import RunLog
+        
+        # Base aggregation
+        stmt = select(
+            func.avg(RunLog.latency_ms).label("avg_latency"),
+            func.avg(RunLog.input_tokens + RunLog.output_tokens).label("avg_tokens"),
+            func.avg(RunLog.cost_estimate).label("avg_cost"),
+            func.count(RunLog.id).label("total_runs"),
+        )
+        row = self.session.execute(stmt).first()
+        
+        # Group by prompt versions
+        prompt_stmt = select(RunLog.prompt_version, func.count(RunLog.id)).group_by(RunLog.prompt_version)
+        prompts = {k: v for k, v in self.session.execute(prompt_stmt).all()}
+        
+        # Group by models
+        model_stmt = select(RunLog.model_name, func.count(RunLog.id)).group_by(RunLog.model_name)
+        models = {k: v for k, v in self.session.execute(model_stmt).all()}
+        
+        # Retrieval activity (avg chunks retrieved)
+        # Using JSONB array length, if supported, otherwise just a count of rows where retrieved_chunk_ids is not null
+        retrieval_stmt = select(func.count(RunLog.id)).where(RunLog.retrieved_chunk_ids.isnot(None))
+        retrieval_count = self.session.execute(retrieval_stmt).scalar() or 0
+        
+        return {
+            "total_runs": row.total_runs if row else 0,
+            "avg_latency_ms": float(row.avg_latency) if row and row.avg_latency is not None else 0.0,
+            "avg_tokens": float(row.avg_tokens) if row and row.avg_tokens is not None else 0.0,
+            "avg_cost": float(row.avg_cost) if row and row.avg_cost is not None else 0.0,
+            "prompt_versions": prompts,
+            "model_usage": models,
+            "retrieval_activity_count": retrieval_count
+        }
