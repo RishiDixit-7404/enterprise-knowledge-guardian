@@ -191,3 +191,33 @@ def execute_query(req: QueryRequest, db: Session = Depends(get_session), graph: 
         "retry_count": final_state.get("retry_count", 0),
         "expanded_chunks": final_state.get("expanded_chunks", [])
     })
+
+
+class EvalRunRequest(BaseModel):
+    dataset_version: str = Field(default="v1", description="Version of the golden evaluation dataset to use.")
+
+
+@app.post("/eval/run", response_model=ResponseEnvelope)
+def run_evaluation_endpoint(req: EvalRunRequest, db: Session = Depends(get_session), graph: Any = Depends(get_graph)):
+    """Runs the evaluation harness over the golden dataset and returns aggregate scores."""
+    from eval.runner import run_evaluation
+
+    result = run_evaluation(db, graph, dataset_version=req.dataset_version)
+
+    return ResponseEnvelope(data=result)
+
+
+@app.get("/metrics", response_model=ResponseEnvelope)
+def get_metrics(db: Session = Depends(get_session)):
+    """Aggregates recent EvalRecords and returns evaluation history."""
+    from db.repositories import EvalRecordRepository
+
+    eval_repo = EvalRecordRepository(db)
+    aggregates = eval_repo.get_aggregated_metrics()
+    recent_runs = eval_repo.get_recent_eval_runs(limit=10)
+
+    return ResponseEnvelope(data={
+        "aggregates": aggregates,
+        "recent_runs": recent_runs,
+    })
+

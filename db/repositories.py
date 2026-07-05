@@ -176,3 +176,96 @@ class EvalRecordRepository:
         self.session.commit()
         self.session.refresh(record)
         return record
+
+    def add_batch(self, records: List[EvalRecord]) -> List[EvalRecord]:
+        """Adds multiple EvalRecords in a single transaction."""
+        for r in records:
+            self.session.add(r)
+        self.session.commit()
+        for r in records:
+            self.session.refresh(r)
+        return records
+
+    def get_by_eval_run_id(self, eval_run_id: uuid.UUID) -> List[EvalRecord]:
+        """Retrieves all EvalRecords from a single evaluation run."""
+        return list(self.session.execute(
+            select(EvalRecord)
+            .where(EvalRecord.eval_run_id == eval_run_id)
+            .order_by(EvalRecord.created_at.desc())
+        ).scalars().all())
+
+    def get_recent(self, limit: int = 50) -> List[EvalRecord]:
+        """Retrieves the most recent EvalRecords."""
+        return list(self.session.execute(
+            select(EvalRecord)
+            .order_by(EvalRecord.created_at.desc())
+            .limit(limit)
+        ).scalars().all())
+
+    def get_aggregated_metrics(self, dataset_version: Optional[str] = None) -> dict:
+        """Computes average scores per metric across recent evaluation runs.
+
+        Returns a dict of {metric_name: {"avg": float, "count": int, "min": float, "max": float}}.
+        """
+        stmt = select(
+            EvalRecord.metric,
+            func.avg(EvalRecord.score).label("avg_score"),
+            func.count(EvalRecord.id).label("count"),
+            func.min(EvalRecord.score).label("min_score"),
+            func.max(EvalRecord.score).label("max_score"),
+        ).where(EvalRecord.score.isnot(None)).group_by(EvalRecord.metric)
+
+        if dataset_version:
+            stmt = stmt.where(EvalRecord.dataset_version == dataset_version)
+
+        rows = self.session.execute(stmt).all()
+        result = {}
+        for row in rows:
+            result[row[0]] = {
+                "avg": float(row[1]) if row[1] is not None else None,
+                "count": int(row[2]),
+                "min": float(row[3]) if row[3] is not None else None,
+                "max": float(row[4]) if row[4] is not None else None,
+            }
+        return result
+
+    def get_recent_eval_runs(self, limit: int = 10) -> List[dict]:
+        """Returns summaries of the most recent evaluation runs."""
+        # Get distinct eval_run_ids ordered by most recent
+        subq = (
+            select(
+                EvalRecord.eval_run_id,
+                func.max(EvalRecord.created_at).label("run_date"),
+                func.max(EvalRecord.dataset_version).label("dataset_version"),
+            )
+            .group_by(EvalRecord.eval_run_id)
+            .order_by(func.max(EvalRecord.created_at).desc())
+            .limit(limit)
+        )
+        runs = self.session.execute(subq).all()
+
+        result = []
+        for run_row in runs:
+            run_id = run_row[0]
+            # Get metrics for this run
+            metrics_stmt = (
+                select(EvalRecord.metric, EvalRecord.score, EvalRecord.error_reason)
+                .where(EvalRecord.eval_run_id == run_id)
+            )
+            metrics = self.session.execute(metrics_stmt).all()
+            metrics_dict = {}
+            for m in metrics:
+                if m[1] is not None:
+                    metrics_dict[m[0]] = float(m[1])
+                elif m[2] is not None:
+                    metrics_dict[m[0]] = {"error": m[2]}
+                else:
+                    metrics_dict[m[0]] = None
+
+            result.append({
+                "eval_run_id": str(run_id),
+                "run_date": run_row[1].isoformat() if run_row[1] else None,
+                "dataset_version": run_row[2],
+                "metrics": metrics_dict,
+            })
+        return result

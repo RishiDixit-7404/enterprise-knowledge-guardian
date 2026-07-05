@@ -119,10 +119,13 @@ class EvalRecord(Base):
     __tablename__ = "eval_records"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    eval_run_id = Column(UUID(as_uuid=True), nullable=False)  # Groups records from the same eval run
     query_record_id = Column(UUID(as_uuid=True), ForeignKey("query_records.id", ondelete="CASCADE"), nullable=False)
     metric = Column(String, nullable=False)   # faithfulness|answer_relevancy|etc.
-    score = Column(Float, nullable=False)
+    score = Column(Float, nullable=True)      # nullable: tokens_used/cost are null in Phase 6
+    error_reason = Column(String, nullable=True)
     dataset_version = Column(String, nullable=True)
+    model_versions = Column(JSONB, nullable=True)  # {embedding_model, reranker, llm_client}
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     
     query_record = relationship("QueryRecord")
