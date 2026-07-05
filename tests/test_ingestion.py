@@ -19,6 +19,12 @@ def test_ingestion_flow(client):
     # Obtain a session for verification
     db = next(get_session())
     
+    # Cleanup state from previous runs
+    db.query(Chunk).delete()
+    db.query(Document).delete()
+    db.query(IngestJob).delete()
+    db.commit()
+    
     # 1. Trigger POST /ingest to queue a job
     response = client.post("/ingest", json={"source": "edgar", "tickers": ["AAPL"]})
     assert response.status_code == 200

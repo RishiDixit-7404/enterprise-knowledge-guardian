@@ -27,7 +27,7 @@ def test_e2e_pipeline_generates_runlog(populated_db_and_graph, monkeypatch, clie
     assert "query_record_id" in data
     
     # 2. Verify RunLog created for query
-    run_logs = db_session.query(RunLog).filter(RunLog.operation == "pipeline").all()
+    run_logs = db_session.query(RunLog).filter(RunLog.operation == "answer").all()
     assert len(run_logs) >= 1
     runlog = run_logs[-1]
     
@@ -84,7 +84,7 @@ def test_e2e_pipeline_generates_runlog(populated_db_and_graph, monkeypatch, clie
         
         # Verify the most recent run has expected params
         latest_run = runs.iloc[0]
-        assert latest_run["params.operation"] in ("pipeline", "eval")
+        assert latest_run["params.operation"] in ("answer", "eval")
         assert latest_run["params.model_name"] == "fake"
         assert latest_run["metrics.input_tokens"] > 0
         assert latest_run["metrics.latency_ms"] > 0

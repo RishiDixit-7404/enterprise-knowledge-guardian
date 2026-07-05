@@ -111,7 +111,7 @@ class RunLog(Base):
     input_tokens = Column(Integer, default=0)
     output_tokens = Column(Integer, default=0)
     latency_ms = Column(Integer, default=0)
-    cost_estimate = Column(Float, default=0.0)
+    cost_estimate = Column(Float, nullable=True, default=None)
     retrieval_trace = Column(JSONB, nullable=True)
     retrieved_chunk_ids = Column(JSONB, nullable=True)
     agent_execution = Column(JSONB, nullable=True)

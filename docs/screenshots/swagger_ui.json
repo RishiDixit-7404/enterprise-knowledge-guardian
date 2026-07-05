@@ -22,7 +22,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/ingest": {
@@ -61,7 +66,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/jobs/{id}": {
@@ -69,6 +79,11 @@
         "summary": "Get Job",
         "description": "Retrieves an IngestJob status and extraction counts by ID.",
         "operationId": "get_job_jobs__id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "id",
@@ -110,6 +125,11 @@
         "summary": "Get Entity Graph",
         "description": "Retrieves an entity, its neighbors, relationships, and evidence chunks.",
         "operationId": "get_entity_graph_graph__entity_id__get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "entity_id",
@@ -146,10 +166,78 @@
         }
       }
     },
+    "/entities": {
+      "get": {
+        "summary": "Get Entities",
+        "description": "Query nodes in the knowledge graph matching optional name and type filters.",
+        "operationId": "get_entities_entities_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Name"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Type"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseEnvelope"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/query": {
       "post": {
         "summary": "Execute Query",
-        "description": "Executes the full Retrieval + LangGraph Verification + Response pipeline.",
+        "description": "Executes the Agentic RAG pipeline to answer a user question.",
         "operationId": "execute_query_query_post",
         "requestBody": {
           "content": {
@@ -182,7 +270,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/eval/run": {
@@ -221,7 +314,12 @@
               }
             }
           }
-        }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
       }
     },
     "/metrics": {
@@ -229,6 +327,11 @@
         "summary": "Get Metrics",
         "description": "Returns evaluation metrics, recent runs, and operational RunLog statistics.",
         "operationId": "get_metrics_metrics_get",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
         "parameters": [
           {
             "name": "dataset_version",
@@ -493,6 +596,12 @@
           "type"
         ],
         "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "scheme": "bearer"
       }
     }
   }

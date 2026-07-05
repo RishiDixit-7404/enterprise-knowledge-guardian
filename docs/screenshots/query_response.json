@@ -1,1 +1,157 @@
-Internal Server Error
+{
+  "success": true,
+  "status_code": 200,
+  "error_message": "",
+  "data": {
+    "query_record_id": "81088024-df50-48b7-8dc7-300a5ed128ac",
+    "answer": "Apple Inc. designs consumer electronics. [20a93427-e9eb-52e7-b6d1-f17d36c55710]",
+    "citations": [
+      "20a93427-e9eb-52e7-b6d1-f17d36c55710"
+    ],
+    "retrieval_trace": {
+      "question": "Who is the CEO of Apple Inc.?",
+      "filters": {
+        "company": null,
+        "doc_type": null,
+        "date_from": null,
+        "date_to": null
+      },
+      "stages": {
+        "dense": [
+          "20a93427-e9eb-52e7-b6d1-f17d36c55710",
+          "2cfa7e23-0610-5e39-8704-97c343402c15",
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ],
+        "bm25": [
+          "2cfa7e23-0610-5e39-8704-97c343402c15"
+        ],
+        "graph": [
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ],
+        "fusion": [
+          "2cfa7e23-0610-5e39-8704-97c343402c15",
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63",
+          "20a93427-e9eb-52e7-b6d1-f17d36c55710"
+        ],
+        "reranker": [
+          {
+            "chunk_id": "2cfa7e23-0610-5e39-8704-97c343402c15",
+            "score": 10.431291580200195
+          },
+          {
+            "chunk_id": "20a93427-e9eb-52e7-b6d1-f17d36c55710",
+            "score": -2.6659910678863525
+          },
+          {
+            "chunk_id": "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63",
+            "score": -5.338942527770996
+          }
+        ]
+      }
+    },
+    "agent_trace": [
+      {
+        "node": "retrieve_node",
+        "retry_count": 0,
+        "retrieved_chunk_count": 3
+      },
+      {
+        "node": "verify_node",
+        "retry_count": 0,
+        "claims_generated": 2,
+        "usage": {
+          "latency_ms": 0,
+          "input_tokens": 72,
+          "output_tokens": 72,
+          "prompt_id": "verification_agent_prompt",
+          "prompt_version": "v1",
+          "prompt_source": "prompts/verification.py",
+          "model_name": "fake"
+        }
+      },
+      {
+        "node": "retry_increment_node"
+      },
+      {
+        "node": "retrieve_node",
+        "retry_count": 1,
+        "retrieved_chunk_count": 3
+      },
+      {
+        "node": "verify_node",
+        "retry_count": 1,
+        "claims_generated": 2,
+        "usage": {
+          "latency_ms": 0,
+          "input_tokens": 72,
+          "output_tokens": 72,
+          "prompt_id": "verification_agent_prompt",
+          "prompt_version": "v1",
+          "prompt_source": "prompts/verification.py",
+          "model_name": "fake"
+        }
+      },
+      {
+        "node": "response_node",
+        "citations_count": 1,
+        "usage": {
+          "latency_ms": 0,
+          "input_tokens": 45,
+          "output_tokens": 31,
+          "prompt_id": "response_agent_prompt",
+          "prompt_version": "v1",
+          "prompt_source": "prompts/response.py",
+          "model_name": "fake"
+        }
+      }
+    ],
+    "retry_count": 1,
+    "expanded_chunks": [
+      {
+        "document_id": "016a58b7-05cb-5004-bf0c-4be98d6481a3",
+        "section": "Section 2",
+        "text": "The CEO is Tim Cook. Apple Inc. is regulated by the SEC.",
+        "metadata": {
+          "date": "2023-10-31T16:00:00",
+          "company": "Apple Inc. / AAPL",
+          "section": "Section 2",
+          "doc_type": "10-K"
+        },
+        "reranker_score": 10.431291580200195,
+        "constituent_chunk_ids": [
+          "2cfa7e23-0610-5e39-8704-97c343402c15"
+        ]
+      },
+      {
+        "document_id": "016a58b7-05cb-5004-bf0c-4be98d6481a3",
+        "section": "Section 1",
+        "text": "This is the 10-K filing text for AAPL. Apple Inc. designs consumer electronics.",
+        "metadata": {
+          "date": "2023-10-31T16:00:00",
+          "company": "Apple Inc. / AAPL",
+          "section": "Section 1",
+          "doc_type": "10-K"
+        },
+        "reranker_score": -2.6659910678863525,
+        "constituent_chunk_ids": [
+          "20a93427-e9eb-52e7-b6d1-f17d36c55710"
+        ]
+      },
+      {
+        "document_id": "016a58b7-05cb-5004-bf0c-4be98d6481a3",
+        "section": "Section 3",
+        "text": "Apple faces market risks and supply chain constraints.",
+        "metadata": {
+          "date": "2023-10-31T16:00:00",
+          "company": "Apple Inc. / AAPL",
+          "section": "Section 3",
+          "doc_type": "10-K"
+        },
+        "reranker_score": -5.338942527770996,
+        "constituent_chunk_ids": [
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ]
+      }
+    ]
+  }
+}

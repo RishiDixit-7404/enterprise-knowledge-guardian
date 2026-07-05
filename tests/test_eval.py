@@ -194,7 +194,7 @@ def test_eval_records_persisted(populated_db_and_graph, client):
         assert record.model_versions is not None
         assert "embedding_model" in record.model_versions
         
-        if record.score is None:
+        if record.score is None and record.metric != "cost":
             assert record.error_reason is not None
             assert "requires real LLM" in record.error_reason
 
@@ -209,11 +209,11 @@ def test_metrics_endpoint(populated_db_and_graph, client):
     assert response.status_code == 200
 
     data = response.json()["data"]
-    assert "aggregates" in data
+    assert "aggregated" in data
     assert "recent_runs" in data
 
     # Verify aggregates contain expected metrics
-    aggregates = data["aggregates"]
+    aggregates = data["aggregated"]
     assert len(aggregates) > 0
 
     # Each aggregate should have avg, count, min, max
