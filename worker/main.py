@@ -101,8 +101,9 @@ def process_job(job: IngestJob, session: Session):
                 doc.raw_path = pd["raw_path"]
                 doc.status = "Parsed"
             else:
+                doc_id = uuid.uuid5(uuid.NAMESPACE_DNS, pd["external_id"])
                 doc = Document(
-                    id=uuid.uuid4(),
+                    id=doc_id,
                     source=job.source,
                     external_id=pd["external_id"],
                     title=pd["title"],
@@ -134,8 +135,9 @@ def process_job(job: IngestJob, session: Session):
             
             for idx, group in enumerate(chunk_groups):
                 chunk_text = ". ".join(group) + "."
+                chunk_id = uuid.uuid5(doc.id, str(idx))
                 chunk = Chunk(
-                    id=uuid.uuid4(),
+                    id=chunk_id,
                     document_id=doc.id,
                     ordinal=idx,
                     text=chunk_text,
