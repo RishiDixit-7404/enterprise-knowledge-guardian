@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     NEO4J_PASSWORD: str = "password"
     WORKER_POLL_INTERVAL: float = 5.0
     EMBEDDING_MODEL: str = "fake"  # 'fake' for offline deterministic, 'real' for all-MiniLM-L6-v2
+    LLM_MODEL: str = "fake"
+    RERANKER_MODEL: str = "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    MLFLOW_ENABLED: bool = False
     PORT: int = 8000
     HOST: str = "0.0.0.0"
 

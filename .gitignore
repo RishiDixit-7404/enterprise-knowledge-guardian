@@ -39,3 +39,7 @@ AGENTS.md
 implementation_plan.md
 task.md
 walkthrough.md
+
+# MLflow
+mlflow.db
+mlruns/
