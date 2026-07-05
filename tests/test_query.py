@@ -14,7 +14,6 @@ from models.database import IngestJob
 from worker.main import process_job
 from db.graph import Graph
 
-client = TestClient(app)
 
 
 

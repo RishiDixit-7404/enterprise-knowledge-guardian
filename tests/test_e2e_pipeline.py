@@ -4,9 +4,8 @@ from api.main import app
 from db.session import get_session
 from models.database import RunLog
 
-client = TestClient(app)
 
-def test_e2e_pipeline_generates_runlog(populated_db_and_graph, monkeypatch):
+def test_e2e_pipeline_generates_runlog(populated_db_and_graph, monkeypatch, client):
     db_session, graph_db = populated_db_and_graph
     
     # Enable MLflow explicitly for this test

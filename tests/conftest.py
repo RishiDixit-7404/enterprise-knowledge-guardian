@@ -2,7 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from api.main import app
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="function")
 def client():
     """Provides a TestClient for testing the FastAPI application endpoints."""
     from api.main import verify_token

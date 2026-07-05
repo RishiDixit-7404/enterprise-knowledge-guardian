@@ -19,7 +19,6 @@ from models.database import EvalRecord, QueryRecord
 # Disable DeepEval telemetry in tests
 os.environ["DEEPEVAL_TELEMETRY_OPT_OUT"] = "1"
 
-client = TestClient(app)
 
 
 def test_golden_dataset_loads():
@@ -137,7 +136,7 @@ def test_deepeval_wrapper_executes():
     assert score is None
 
 
-def test_eval_run_endpoint(populated_db_and_graph):
+def test_eval_run_endpoint(populated_db_and_graph, client):
     """Verifies that POST /eval/run executes the evaluation pipeline end-to-end."""
     response = client.post("/eval/run", json={"dataset_version": "v1"})
     assert response.status_code == 200
@@ -172,7 +171,7 @@ def test_eval_run_endpoint(populated_db_and_graph):
             assert "latency_ms" in pq["metrics"]
 
 
-def test_eval_records_persisted(populated_db_and_graph):
+def test_eval_records_persisted(populated_db_and_graph, client):
     """Verifies that EvalRecords are persisted in the database after /eval/run."""
     response = client.post("/eval/run", json={"dataset_version": "v1"})
     assert response.status_code == 200
@@ -200,7 +199,7 @@ def test_eval_records_persisted(populated_db_and_graph):
             assert "requires real LLM" in record.error_reason
 
 
-def test_metrics_endpoint(populated_db_and_graph):
+def test_metrics_endpoint(populated_db_and_graph, client):
     """Verifies that GET /metrics aggregates evaluation results correctly."""
     # First run an evaluation to generate data
     client.post("/eval/run", json={"dataset_version": "v1"})

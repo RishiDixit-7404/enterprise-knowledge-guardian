@@ -16,7 +16,6 @@ from worker.main import process_job
 from db.graph import Graph
 from ingest.interfaces import FakeLLMClient
 
-client = TestClient(app)
 
 @pytest.fixture(scope="module")
 def setup_db_and_graph():
@@ -101,7 +100,7 @@ def test_worker_ingest_to_graph(setup_db_and_graph, clean_graph):
         assert rel_prov is not None
         assert len(rel_prov["chunks"]) > 0
 
-def test_api_graph_endpoint(setup_db_and_graph, clean_graph):
+def test_api_graph_endpoint(setup_db_and_graph, clean_graph, client):
     """Verifies that the GET /graph/{entity_id} endpoint returns the correct structure."""
     db = next(get_session())
     graph = clean_graph
@@ -131,7 +130,7 @@ def test_api_graph_endpoint(setup_db_and_graph, clean_graph):
     assert rels[0]["type"] == "HAS_CEO"
     assert str(chunk_id) in rels[0]["evidence_chunk_ids"]
 
-def test_api_graph_endpoint_not_found(clean_graph):
+def test_api_graph_endpoint_not_found(clean_graph, client):
     """Verifies 404 response for unknown entity."""
     response = client.get(f"/graph/{uuid.uuid4()}")
     assert response.status_code == 404

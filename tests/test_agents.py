@@ -7,9 +7,8 @@ from db.session import get_session
 from models.database import QueryRecord
 
 
-client = TestClient(app)
 
-def test_query_endpoint_langgraph_flow(populated_db_and_graph):
+def test_query_endpoint_langgraph_flow(populated_db_and_graph, client):
     """
     Tests the end-to-end /query endpoint powered by LangGraph.
     Verifies that the VerificationAgent flags unsupported claims, triggers the retry loop exactly once,

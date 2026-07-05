@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/rishidixit/Desktop/Person projects/EKG/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/rishidixit/Desktop/Person projects/EKG
+plugins: rerunfailures-16.4, repeat-0.9.4, anyio-4.14.1, xdist-3.8.0, asyncio-1.4.0, deepeval-4.0.7
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 29 items
+
+tests/test_agents.py::test_query_endpoint_langgraph_flow PASSED          [  3%]
+tests/test_auth.py::test_auth_fail_closed_unconfigured PASSED            [  6%]
+tests/test_auth.py::test_auth_fail_closed_wrong_token PASSED             [ 10%]
+tests/test_auth.py::test_auth_success_correct_token PASSED               [ 13%]
+tests/test_e2e_pipeline.py::test_e2e_pipeline_generates_runlog FAILED    [ 17%]
+tests/test_eval.py::test_golden_dataset_loads PASSED                     [ 20%]
+tests/test_eval.py::test_context_recall_at_k PASSED                      [ 24%]
+tests/test_eval.py::test_citation_correctness PASSED                     [ 27%]
+tests/test_eval.py::test_hallucination_rate PASSED                       [ 31%]
+tests/test_eval.py::test_ragas_wrapper_executes PASSED                   [ 34%]
+tests/test_eval.py::test_deepeval_wrapper_executes PASSED                [ 37%]
+tests/test_eval.py::test_eval_run_endpoint 

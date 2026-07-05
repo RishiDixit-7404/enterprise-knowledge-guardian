@@ -17,10 +17,12 @@ def test_auth_fail_closed_unconfigured():
         
     app.dependency_overrides = original_overrides
 
-def test_auth_fail_closed_wrong_token():
-    """Verify that a wrong token is rejected."""
+def test_auth_fail_closed_wrong_token(monkeypatch):
+    """Verify that a wrong token is rejected when API_KEY is configured."""
     original_overrides = app.dependency_overrides.copy()
     app.dependency_overrides.clear()
+    
+    monkeypatch.setattr(settings, "API_KEY", "real-test-token")
     
     with TestClient(app) as client:
         response = client.get("/health", headers={"Authorization": "Bearer wrong-token"})

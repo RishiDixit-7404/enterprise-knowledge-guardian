@@ -305,7 +305,7 @@ class RunLogRepository:
             "total_runs": row.total_runs if row else 0,
             "avg_latency_ms": float(row.avg_latency) if row and row.avg_latency is not None else 0.0,
             "avg_tokens": float(row.avg_tokens) if row and row.avg_tokens is not None else 0.0,
-            "avg_cost": float(row.avg_cost) if row and row.avg_cost is not None else 0.0,
+            "avg_cost": float(row.avg_cost) if row and row.avg_cost is not None else None,
             "prompt_versions": prompts,
             "model_usage": models,
             "retrieval_activity_count": retrieval_count

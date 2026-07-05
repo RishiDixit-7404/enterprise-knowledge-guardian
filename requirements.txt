@@ -257,3 +257,4 @@ zstandard==0.25.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
+tiktoken==0.8.0

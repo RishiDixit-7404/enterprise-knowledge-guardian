@@ -48,6 +48,7 @@ services:
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: password
       WORKER_POLL_INTERVAL: "5.0"
+      API_KEY: "real-test-token"
     depends_on:
       db:
         condition: service_healthy
@@ -65,6 +66,7 @@ services:
       NEO4J_USER: neo4j
       NEO4J_PASSWORD: password
       WORKER_POLL_INTERVAL: "5.0"
+      API_KEY: "real-test-token"
     depends_on:
       db:
         condition: service_healthy

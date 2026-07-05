@@ -1,0 +1,9 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.13, pytest-9.1.1, pluggy-1.6.0 -- /Users/rishidixit/Desktop/Person projects/EKG/.venv/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/rishidixit/Desktop/Person projects/EKG
+plugins: rerunfailures-16.4, repeat-0.9.4, anyio-4.14.1, xdist-3.8.0, asyncio-1.4.0, deepeval-4.0.7
+asyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collecting ... collected 29 items
+
+tests/test_agents.py::test_query_endpoint_langgraph_flow 

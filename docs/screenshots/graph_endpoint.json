@@ -1,21 +1,68 @@
 {
   "success": true,
+  "status_code": 200,
+  "error_message": "",
   "data": {
-    "nodes": [
+    "entity": {
+      "id": "84f8acc3-5c7d-432d-bb91-c218581f672e",
+      "source_chunk_ids": [
+        "20a93427-e9eb-52e7-b6d1-f17d36c55710",
+        "2cfa7e23-0610-5e39-8704-97c343402c15",
+        "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+      ],
+      "name": "Apple Inc.",
+      "attributes": "{\"ticker\": \"AAPL\"}",
+      "type": "Company",
+      "normalized_name": "apple inc."
+    },
+    "neighbors": [
       {
-        "id": "Tim Cook",
-        "label": "Person"
+        "id": "6f6b034a-220e-4c2f-b1cc-fd9d22d01176",
+        "source_chunk_ids": [
+          "20a93427-e9eb-52e7-b6d1-f17d36c55710",
+          "2cfa7e23-0610-5e39-8704-97c343402c15",
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ],
+        "name": "SEC",
+        "attributes": "{}",
+        "type": "Regulator",
+        "normalized_name": "sec"
       },
       {
-        "id": "Apple Inc.",
-        "label": "Company"
+        "id": "a9099505-9d21-4c7c-b801-51d6a44e64ed",
+        "source_chunk_ids": [
+          "20a93427-e9eb-52e7-b6d1-f17d36c55710",
+          "2cfa7e23-0610-5e39-8704-97c343402c15",
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ],
+        "name": "Tim Cook",
+        "attributes": "{\"role\": \"CEO\"}",
+        "type": "Person",
+        "normalized_name": "tim cook"
       }
     ],
     "relationships": [
       {
-        "source": "Apple Inc.",
-        "target": "Tim Cook",
-        "type": "HAS_CEO"
+        "id": "660e3365-7247-4a17-b68a-20095da4201e",
+        "end_id": "6f6b034a-220e-4c2f-b1cc-fd9d22d01176",
+        "start_id": "84f8acc3-5c7d-432d-bb91-c218581f672e",
+        "created_at": 1783283062898,
+        "confidence": 0.95,
+        "type": "REGULATED_BY",
+        "evidence_chunk_ids": [
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ]
+      },
+      {
+        "id": "99ce5855-5b0a-4e2c-a895-b36e07e714b1",
+        "end_id": "a9099505-9d21-4c7c-b801-51d6a44e64ed",
+        "start_id": "84f8acc3-5c7d-432d-bb91-c218581f672e",
+        "created_at": 1783283062885,
+        "confidence": 0.9,
+        "type": "HAS_CEO",
+        "evidence_chunk_ids": [
+          "a9b95fb6-4c18-5ef0-a71c-d7b711a0cc63"
+        ]
       }
     ]
   }
