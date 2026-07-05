@@ -1,0 +1,41 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.pytest_cache/
+
+# Environments
+.env
+
+# Node
+node_modules/
+
+# Docker Volumes & Local Data
+postgres-data/
+neo4j-data/
+neo4j/
+pgvector/
+pg_data/
+
+# Models & HuggingFace Cache
+.cache/
+huggingface/
+*.bin
+*.pt
+*.safetensors
+*.ckpt
+
+# Internal Project Process Files
+SPEC.md
+PLAN.md
+AGENTS.md
+implementation_plan.md
+task.md
+walkthrough.md
